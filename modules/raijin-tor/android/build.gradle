@@ -1,0 +1,26 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'app.raijin'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.raijintor"
+  defaultConfig {
+    versionCode 1
+    versionName '0.1.0'
+  }
+}
+
+dependencies {
+  // Tor daemon as a bindable Android service. 0.4.9.x needs compileSdk 37.2.
+  // Repository: https://raw.githubusercontent.com/guardianproject/gpmaven/master (added via
+  // expo-build-properties extraMavenRepos in app.json).
+  implementation 'info.guardianproject:tor-android:0.4.8.16'
+  // Same OkHttp line React Native ships with.
+  implementation 'com.squareup.okhttp3:okhttp:4.9.2'
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2'
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+}

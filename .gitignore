@@ -1,0 +1,55 @@
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Generated native folders (Continuous Native Generation)
+/ios
+/android
+
+# Native signing material
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# Debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# TypeScript
+*.tsbuildinfo
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Secrets - never commit keys, seeds, API keys or credentials
+.env
+.env.*
+!.env.example
+seed*.txt
+.claude/settings.local.json
+
+# Gradle output of local Expo modules
+modules/*/android/build/
+modules/*/android/.gradle/
+
+# Desktop (Electron): exported web app, downloaded Tor, dependencies
+desktop/node_modules/
+desktop/web/
+desktop/tor-bundle/

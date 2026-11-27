@@ -1,0 +1,268 @@
+{
+  "expo": {
+    "name": "Raijin Wallet",
+    "slug": "raijin",
+    "version": "0.1.1",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "raijin",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/images/icon.png",
+      "bundleIdentifier": "com.raijin.wallet",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "payment-links",
+            "CFBundleURLSchemes": [
+              "lightning",
+              "bitcoin",
+              "lnurl",
+              "lnurlp",
+              "lnurlw",
+              "lnurlc",
+              "keyauth",
+              "cashu",
+              "lndconnect",
+              "nostr+walletconnect"
+            ]
+          }
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#07080B",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.raijin.wallet",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "lightning"
+            },
+            {
+              "scheme": "bitcoin"
+            },
+            {
+              "scheme": "lnurl"
+            },
+            {
+              "scheme": "lnurlp"
+            },
+            {
+              "scheme": "lnurlw"
+            },
+            {
+              "scheme": "lnurlc"
+            },
+            {
+              "scheme": "keyauth"
+            },
+            {
+              "scheme": "cashu"
+            },
+            {
+              "scheme": "lndconnect"
+            },
+            {
+              "scheme": "nostr+walletconnect"
+            }
+          ]
+        }
+      ],
+      "versionCode": 2
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#07080B",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ],
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID to unlock your wallet."
+        }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": [
+              "en",
+              "de",
+              "es",
+              "fr",
+              "it",
+              "pt",
+              "ja",
+              "zh",
+              "ru"
+            ],
+            "android": [
+              "en",
+              "de",
+              "es",
+              "fr",
+              "it",
+              "pt",
+              "ja",
+              "zh",
+              "ru"
+            ]
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              "https://raw.githubusercontent.com/guardianproject/gpmaven/master"
+            ]
+          }
+        }
+      ],
+      [
+        "expo-alternate-app-icons",
+        [
+          {
+            "name": "Terminal",
+            "ios": "./assets/images/app-icons/terminal.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/terminal-foreground.png",
+              "backgroundColor": "#07080B"
+            }
+          },
+          {
+            "name": "Matrix",
+            "ios": "./assets/images/app-icons/matrix.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/matrix-foreground.png",
+              "backgroundColor": "#000000"
+            }
+          },
+          {
+            "name": "Amber",
+            "ios": "./assets/images/app-icons/amber.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/amber-foreground.png",
+              "backgroundColor": "#0A0600"
+            }
+          },
+          {
+            "name": "Cyberpunk",
+            "ios": "./assets/images/app-icons/cyberpunk.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/cyberpunk-foreground.png",
+              "backgroundColor": "#0A0014"
+            }
+          },
+          {
+            "name": "Bitcoin",
+            "ios": "./assets/images/app-icons/bitcoin.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/bitcoin-foreground.png",
+              "backgroundColor": "#0C0C0C"
+            }
+          },
+          {
+            "name": "Oled",
+            "ios": "./assets/images/app-icons/oled.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/oled-foreground.png",
+              "backgroundColor": "#000000"
+            }
+          },
+          {
+            "name": "Light",
+            "ios": "./assets/images/app-icons/light.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/light-foreground.png",
+              "backgroundColor": "#F5F6FA"
+            }
+          },
+          {
+            "name": "Paper",
+            "ios": "./assets/images/app-icons/paper.png",
+            "android": {
+              "foregroundImage": "./assets/images/app-icons/paper-foreground.png",
+              "backgroundColor": "#F4EFE6"
+            }
+          }
+        ]
+      ],
+      "expo-background-task",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#9B4DFF",
+          "enableRemoteNotifications": false
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera to scan QR codes.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "fonts": [
+            "./node_modules/@expo-google-fonts/jetbrains-mono/400Regular/JetBrainsMono_400Regular.ttf",
+            "./node_modules/@expo-google-fonts/jetbrains-mono/700Bold/JetBrainsMono_700Bold.ttf"
+          ],
+          "widgets": [
+            {
+              "name": "Balance",
+              "label": "Raijin",
+              "description": "Balance of your active node",
+              "minWidth": "180dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "previewImage": "./assets/images/widget-preview.png",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
+      "./plugins/withReleaseSigning",
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "Raijin Wallet reads NFC tags and Bolt Cards so you can pay or withdraw by tapping."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "backgroundColor": "#07080B"
+  }
+}

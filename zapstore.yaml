@@ -1,0 +1,31 @@
+# Zapstore listing for Raijin Wallet (published with zsp, https://zapstore.dev)
+# Before each release: copy the signed arm64 release APK to dist/zapstore/raijin-wallet.apk
+repository: https://github.com/gitraijin/Raijin-Wallet
+release_source: ./dist/zapstore/raijin-wallet.apk
+metadata_sources: []
+
+name: Raijin Wallet
+summary: A Lightning wallet for the node you run (LND, Nostr Wallet Connect or LNDHub).
+description: |
+  Raijin Wallet connects to the node you run and puts it in your pocket.
+  No custodian. No middleman. No permission needed.
+
+  - Connect your own node: **LND**, **Nostr Wallet Connect** or **LNDHub**
+  - Lightning, on-chain and Cashu ecash in one place
+  - Built-in Tor, PIN, biometrics and a duress wallet
+  - Two looks: the terminal style and the calmer Fujin style, plus many themes
+  - Nine languages: English, German, Spanish, French, Italian, Portuguese, Japanese, Chinese, Russian
+
+  Raijin Wallet is beta software. Start with small amounts.
+license: AGPL-3.0-only
+website: https://raijinhub.com/wallet/
+tags: [bitcoin, lightning, wallet, nostr, cashu, tor]
+icon: ./assets/images/icon.png
+images:
+  - ./assets/zapstore/01-fujin-0.png
+  - ./assets/zapstore/02-terminal-0.png
+  - ./assets/zapstore/03-fujin-1.png
+  - ./assets/zapstore/04-terminal-2.png
+  - ./assets/zapstore/05-fujin-3.png
+  - ./assets/zapstore/06-terminal-1.png
+supported_nips: ["47", "57"]

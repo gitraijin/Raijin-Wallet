@@ -1,0 +1,97 @@
+# Builds the desktop app on each target system:
+#   Windows: NSIS installer + portable exe
+#   macOS:   dmg + zip for Apple Silicon (arm64) and Intel (x64)
+#   Linux:   AppImage, deb, tar.gz
+# Start manually (Actions > Desktop > Run workflow) or by pushing a v* tag.
+name: Desktop
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+# A newer run of the same ref replaces one still in progress.
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # tag builds upload to the GitHub release (auto-update source)
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: --win
+            tor: --os win --arch x64
+          # Intel runner: the arm64 pool is often out of capacity; it still builds
+          # both arm64 and x64 packages.
+          - os: macos-15-intel
+            target: --mac
+            tor: --os mac --arch all
+          - os: ubuntu-latest
+            target: --linux
+            tor: --os linux --arch x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            desktop/package-lock.json
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Typecheck and lint
+        run: |
+          npx tsc --noEmit
+          npx expo lint
+
+      - name: Export the web app
+        run: npx expo export --platform web --output-dir desktop/web
+
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Fetch Tor
+        working-directory: desktop
+        run: node scripts/fetch-tor.mjs ${{ matrix.tor }}
+
+      - name: Build packages
+        working-directory: desktop
+        shell: bash
+        run: |
+          # An unset secret arrives as an empty string, which electron-builder
+          # would read as a certificate path.
+          if [ -z "$CSC_LINK" ]; then unset CSC_LINK CSC_KEY_PASSWORD; fi
+          # Tags publish to the release of the package version (with latest*.yml for
+          # electron-updater); manual runs only build.
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then PUBLISH=always; else PUBLISH=never; fi
+          npx electron-builder ${{ matrix.target }} --publish $PUBLISH
+        env:
+          # Optional signing secrets; without them the packages are unsigned
+          # (Windows) or ad-hoc signed (macOS).
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raijin-desktop-${{ runner.os }}
+          path: |
+            dist/desktop/*.exe
+            dist/desktop/*.dmg
+            dist/desktop/*.zip
+            dist/desktop/*.AppImage
+            dist/desktop/*.deb
+            dist/desktop/*.tar.gz
+          if-no-files-found: error

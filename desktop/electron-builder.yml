@@ -1,0 +1,98 @@
+# Desktop packages for Windows, macOS and Linux.
+# Build on the target system (or in CI, see .github/workflows/desktop.yml):
+# macOS packages can only be built and signed on a Mac.
+appId: com.raijin.wallet
+productName: Raijin Wallet
+copyright: Raijin contributors, AGPL-3.0
+artifactName: raijin-${version}-${os}-${arch}.${ext}
+
+directories:
+  output: ../dist/desktop
+  buildResources: build
+
+files:
+  - main.cjs
+  - preload.cjs
+  - net.cjs
+  - tor.cjs
+  - secure.cjs
+  - extras.cjs
+  - websockets.cjs
+  - web/**/*
+  - build/icon.png
+  - package.json
+  - "!**/*.map"
+
+# Tor Expert Bundle (scripts/fetch-tor.mjs), outside the asar so it can run.
+extraResources:
+  - from: tor-bundle/${os}-${arch}
+    to: tor-bundle
+    filter: ["**/*"]
+
+asar: true
+
+# Payment links: macOS Info.plist and Linux .desktop MimeType. Windows
+# registers them at runtime (app.setAsDefaultProtocolClient).
+protocols:
+  - name: Payment links
+    schemes: [lightning, bitcoin, lnurl, lnurlp, lnurlw, lnurlc, keyauth, cashu, lndconnect, nostr+walletconnect]
+
+# Auto-update source (electron-updater). Works once releases are public;
+# with a private repository the app cannot read them.
+publish:
+  provider: github
+  owner: gitraijin
+  repo: Raijin-Wallet
+  releaseType: release
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  icon: build/icon.png
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  artifactName: raijin-${version}-windows-setup.${ext}
+
+portable:
+  artifactName: raijin-${version}-windows-portable.${ext}
+
+mac:
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+  category: public.app-category.finance
+  icon: build/icon.png
+  # Without an Apple Developer ID the app is ad-hoc signed ("-"), which Apple
+  # Silicon requires; users open it via right-click > Open the first time.
+  # With a Developer ID: set CSC_LINK/CSC_KEY_PASSWORD, remove this line and
+  # enable hardenedRuntime + notarize.
+  identity: "-"
+  hardenedRuntime: false
+
+linux:
+  syncDesktopName: true
+  executableName: raijin
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+    - target: tar.gz
+      arch: [x64]
+  category: Finance
+  icon: build/icon.png
+  maintainer: Raijin contributors <raijin@users.noreply.github.com>
+  synopsis: Lightning node wallet
+  description: Open-source Lightning node wallet (LND, NWC, LNDHub) with Cashu ecash and built-in Tor.
+
+deb:
+  depends: [libsecret-1-0]

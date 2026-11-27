@@ -1,0 +1,31 @@
+{
+  "name": "raijin-desktop",
+  "productName": "Raijin Wallet",
+  "version": "0.1.1",
+  "description": "Raijin Lightning node wallet for Windows, macOS and Linux",
+  "license": "AGPL-3.0-only",
+  "author": "Raijin contributors",
+  "homepage": "https://github.com/raijin-wallet/raijin",
+  "main": "main.cjs",
+  "desktopName": "raijin.desktop",
+  "private": true,
+  "scripts": {
+    "web": "cd .. && npx expo export --platform web --output-dir desktop/web",
+    "tor": "node scripts/fetch-tor.mjs",
+    "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:linux": "electron-builder --linux --publish never"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11",
+    "socks": "^2.8.11",
+    "socks-proxy-agent": "^8.0.5",
+    "ws": "^8.23.0"
+  },
+  "devDependencies": {
+    "electron": "45.4.1",
+    "electron-builder": "^26.18.0"
+  }
+}

@@ -1,50 +1,35 @@
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { RaijinNotify } from '../../modules/raijin-notify';
 
-/** Local notifications on Android / iOS (no push server involved). */
+/**
+ * Local notifications on Android (no push server involved). Our own small
+ * native module instead of expo-notifications, which always ships Firebase
+ * Cloud Messaging and Google Play services code even when push is off.
+ */
 
 const CHANNEL = 'payments';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
-let channelReady: Promise<unknown> | null = null;
-function ensureChannel(): Promise<unknown> {
-  if (Platform.OS !== 'android') return Promise.resolve();
-  channelReady ??= Notifications.setNotificationChannelAsync(CHANNEL, {
-    name: 'Payments',
-    // eslint-disable-next-line import/namespace -- re-exported enum the resolver misses
-    importance: Notifications.AndroidImportance.HIGH,
-    vibrationPattern: [0, 120, 80, 120],
-    lightColor: '#9B4DFF',
-  });
-  return channelReady;
+let channelReady = false;
+function ensureChannel(): void {
+  if (channelReady || !RaijinNotify) return;
+  RaijinNotify.setChannel(CHANNEL, 'Payments', '#9B4DFF', [0, 120, 80, 120]);
+  channelReady = true;
 }
 
 /** Asks for permission if needed. Resolves true when notifications may be shown. */
 export async function ensureNotificationPermission(): Promise<boolean> {
-  await ensureChannel();
-  const current = await Notifications.getPermissionsAsync();
+  if (!RaijinNotify) return false;
+  ensureChannel();
+  const current = await RaijinNotify.getPermission();
   if (current.granted) return true;
   if (!current.canAskAgain) return false;
-  return (await Notifications.requestPermissionsAsync()).granted;
+  return (await RaijinNotify.requestPermission()).granted;
 }
 
 export async function showNotification(title: string, body: string): Promise<void> {
-  await ensureChannel();
-  const permission = await Notifications.getPermissionsAsync();
-  if (!permission.granted) return;
-  await Notifications.scheduleNotificationAsync({
-    content: { title, body },
-    // Immediate; on Android in the payments channel.
-    trigger: Platform.OS === 'android' ? { channelId: CHANNEL } : null,
-  });
+  if (!RaijinNotify) return;
+  ensureChannel();
+  // The native side checks the permission and drops the message without it.
+  RaijinNotify.show(CHANNEL, title, body);
 }
 
 export const backgroundChecksAvailable = true;

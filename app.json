@@ -213,19 +213,11 @@
       ],
       "expo-background-task",
       [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/notification-icon.png",
-          "color": "#9B4DFF",
-          "enableRemoteNotifications": false
-        }
-      ],
-      [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera to scan QR codes.",
           "recordAudioAndroid": false,
-          "barcodeScannerEnabled": true
+          "barcodeScannerEnabled": false
         }
       ],
       [
@@ -252,6 +244,7 @@
         }
       ],
       "./plugins/withReleaseSigning",
+      "./plugins/withoutGoogleServices",
       [
         "react-native-nfc-manager",
         {

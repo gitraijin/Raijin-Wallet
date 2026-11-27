@@ -1,0 +1,18 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'app.raijin'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.raijinnotify"
+  defaultConfig {
+    versionCode 1
+    versionName '0.1.0'
+  }
+}
+
+// Local notifications only, with AndroidX (already in the app). No Firebase,
+// no Google Play services: Raijin never receives push messages from a server.

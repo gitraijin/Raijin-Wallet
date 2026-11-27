@@ -1,9 +1,10 @@
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { NfcReader } from '@/components/NfcReader';
+import { QrCamera } from '@/components/QrCamera';
 import { Button, ErrorText, Header, Mono, Screen } from '@/components/ui';
 import { deliverScan } from '@/lib/scan-result';
 import { routeForScan } from '@/lib/scan-route';
@@ -91,13 +92,7 @@ export default function Scan() {
     <Screen>
       <Header title={t('scan.title')} />
       <View style={styles.frame}>
-        <CameraView
-          style={StyleSheet.absoluteFill}
-          facing="back"
-          enableTorch={torch}
-          barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-          onBarcodeScanned={onScanned}
-        />
+        <QrCamera torch={torch} onScanned={onScanned} />
         {/* Terminal-style viewfinder corners */}
         {(['tl', 'tr', 'bl', 'br'] as const).map((corner) => (
           <View key={corner} style={[styles.corner, styles[corner], { borderColor: colors.primary }]} />

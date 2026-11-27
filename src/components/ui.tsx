@@ -160,7 +160,19 @@ export function Spacer({ size = space.md }: { size?: number }) {
 
 export function Mono({ style, ...props }: TextProps) {
   const styles = useStyles();
-  return <Text {...props} style={[styles.mono, style]} />;
+  return <Text {...props} style={[styles.mono, style, tallDigits(style)]} />;
+}
+
+/**
+ * Manrope (Fujin style) has taller digits than JetBrains Mono. Large numbers
+ * without an explicit lineHeight get their tops cut, so give them room.
+ */
+function tallDigits(style: TextProps['style']) {
+  if (shape.radius === 0) return null;
+  const flat = StyleSheet.flatten(style);
+  const size = flat?.fontSize;
+  if (!size || size < 20 || flat.lineHeight) return null;
+  return { lineHeight: Math.round(size * 1.32), paddingTop: 2 };
 }
 
 export function Label({ style, ...props }: TextProps) {

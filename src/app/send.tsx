@@ -18,7 +18,7 @@ import {
   Segmented,
 } from '@/components/ui';
 import type { TKey } from '@/i18n';
-import { parsePaymentInput } from '@/lib/bitcoin';
+import { destinationText, parsePaymentInput } from '@/lib/bitcoin';
 import { errorMessage, truncateMiddle } from '@/lib/format';
 import type { QuoteDetail, SendQuote, SendResult } from '@/lightning';
 import { usePreferences } from '@/preferences/PreferencesContext';
@@ -42,7 +42,7 @@ export default function Send() {
   const paymentAuth = usePaymentAuth();
   const btc = useAmount();
   const params = useLocalSearchParams<{ value?: string }>();
-  const [destination, setDestination] = useState(params.value ?? '');
+  const [destination, setDestination] = useState(() => (params.value ? destinationText(params.value) : ''));
   const [amount, setAmount] = useState(() => {
     // A scanned BIP21 request brings its amount.
     const parsed = params.value ? parsePaymentInput(params.value) : null;
@@ -118,7 +118,7 @@ export default function Send() {
       router.replace({ pathname: '/cashu-receive', params: { token: value.trim() } });
       return;
     }
-    setDestination(value);
+    setDestination(destinationText(value));
     // Take over the amount of a BIP21 payment request.
     const parsed = parsePaymentInput(value);
     if (parsed.type === 'onchain' && parsed.amountSats && !parsed.lightning) {

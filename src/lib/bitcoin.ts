@@ -86,3 +86,17 @@ export function parsePaymentInput(raw: string): PaymentInput {
   if (isLnurl(value)) return { type: 'lnurl', value };
   return { type: 'unknown', value };
 }
+
+/**
+ * What the recipient field shows for a pasted or scanned value: a plain
+ * "bitcoin:" or "lightning:" URI is reduced to the bare address or invoice.
+ * A URI that carries more than the amount (label, unified lightning invoice)
+ * stays whole so nothing of it is lost.
+ */
+export function destinationText(raw: string): string {
+  const parsed = parsePaymentInput(raw);
+  if (parsed.type === 'lightning') return parsed.invoice;
+  if (parsed.type === 'onchain' && !parsed.label && !parsed.lightning) return parsed.address;
+  if (parsed.type === 'lnurl') return parsed.value;
+  return raw;
+}

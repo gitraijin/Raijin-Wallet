@@ -2,7 +2,7 @@
   "expo": {
     "name": "Raijin Wallet",
     "slug": "raijin",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "raijin",
@@ -80,7 +80,7 @@
           ]
         }
       ],
-      "versionCode": 3
+      "versionCode": 4
     },
     "web": {
       "output": "single",

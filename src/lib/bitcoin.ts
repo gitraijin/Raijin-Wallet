@@ -88,15 +88,15 @@ export function parsePaymentInput(raw: string): PaymentInput {
 }
 
 /**
- * What the recipient field shows for a pasted or scanned value: a plain
- * "bitcoin:" or "lightning:" URI is reduced to the bare address or invoice.
- * A URI that carries more than the amount (label, unified lightning invoice)
- * stays whole so nothing of it is lost.
+ * What the recipient field shows for a pasted or scanned value: the bare
+ * address or invoice, never the "bitcoin:" / "lightning:" URI around it.
+ * For a unified BIP21 QR that is the lightning invoice, since that is what
+ * gets paid. The send screen keeps the full URI aside for amount and label.
  */
 export function destinationText(raw: string): string {
   const parsed = parsePaymentInput(raw);
   if (parsed.type === 'lightning') return parsed.invoice;
-  if (parsed.type === 'onchain' && !parsed.label && !parsed.lightning) return parsed.address;
+  if (parsed.type === 'onchain') return parsed.lightning ?? parsed.address;
   if (parsed.type === 'lnurl') return parsed.value;
   return raw;
 }

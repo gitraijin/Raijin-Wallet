@@ -43,6 +43,10 @@ export default function Send() {
   const btc = useAmount();
   const params = useLocalSearchParams<{ value?: string }>();
   const [destination, setDestination] = useState(() => (params.value ? destinationText(params.value) : ''));
+  // The full payment URI behind the field (amount, label), while the field shows only its address.
+  const [request, setRequest] = useState<string | null>(() =>
+    params.value && destinationText(params.value) !== params.value.trim() ? params.value.trim() : null,
+  );
   const [amount, setAmount] = useState(() => {
     // A scanned BIP21 request brings its amount.
     const parsed = params.value ? parsePaymentInput(params.value) : null;
@@ -61,7 +65,7 @@ export default function Send() {
   const [busy, setBusy] = useState(false);
   const onFeeChange = useCallback((rate: number | undefined) => setFeeRate(rate), []);
 
-  const input = parsePaymentInput(destination);
+  const input = parsePaymentInput(request ?? destination);
   const canOnchain = !!backend?.prepareOnchainSend;
   // A unified BIP21 QR with an invoice goes over lightning: faster and cheaper.
   const invoice =
@@ -118,7 +122,10 @@ export default function Send() {
       router.replace({ pathname: '/cashu-receive', params: { token: value.trim() } });
       return;
     }
-    setDestination(destinationText(value));
+    const shown = destinationText(value);
+    setDestination(shown);
+    // Typing over the field drops the URI it came from.
+    setRequest(shown !== value.trim() ? value.trim() : null);
     // Take over the amount of a BIP21 payment request.
     const parsed = parsePaymentInput(value);
     if (parsed.type === 'onchain' && parsed.amountSats && !parsed.lightning) {

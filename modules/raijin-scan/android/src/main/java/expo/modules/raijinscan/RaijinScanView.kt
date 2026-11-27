@@ -33,6 +33,11 @@ import java.util.concurrent.Executors
 class RaijinScanView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
   private val onScan by EventDispatcher()
 
+  // React Native does not lay out views that native code adds (PreviewView
+  // adds its TextureView only once the camera runs). Without this the preview
+  // stays 0x0, CameraX never gets a surface and the camera (and torch) never start.
+  override val shouldUseAndroidLayout = true
+
   private val previewView = PreviewView(context).apply {
     // TextureView: lays out like any other view inside React Native.
     implementationMode = PreviewView.ImplementationMode.COMPATIBLE
@@ -89,7 +94,11 @@ class RaijinScanView(context: Context, appContext: AppContext) : ExpoView(contex
   }
 
   private fun start() {
-    val owner = appContext.currentActivity as? LifecycleOwner ?: return
+    val owner = appContext.currentActivity as? LifecycleOwner
+    if (owner == null) {
+      Log.w(TAG, "no lifecycle owner, camera not started")
+      return
+    }
     val future = ProcessCameraProvider.getInstance(context)
     future.addListener({
       if (!isAttachedToWindow) return@addListener

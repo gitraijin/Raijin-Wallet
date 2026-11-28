@@ -19,6 +19,7 @@ const { request } = require('./net.cjs');
 const { SecureStore } = require('./secure.cjs');
 const { TorManager } = require('./tor.cjs');
 const websockets = require('./websockets.cjs');
+const sockets = require('./sockets.cjs');
 
 const WEB_DIR = path.join(__dirname, 'web');
 const ORIGIN = 'app://raijin';
@@ -134,6 +135,15 @@ function registerIpc() {
     });
   });
   handle('ws:send', (id, text) => websockets.send(String(id), text));
+  // Electrum servers: line-based TCP/TLS (desktop/sockets.cjs).
+  handle('socket:open', async (id, host, port, useTls, viaTor, pin) => {
+    const socksPort = viaTor ? await tor.start() : 0;
+    return sockets.open(String(id), String(host), Number(port), Boolean(useTls), socksPort, pin == null ? null : String(pin), (event) => {
+      for (const win of BrowserWindow.getAllWindows()) win.webContents.send('socket:event', event);
+    });
+  });
+  handle('socket:send', (id, line) => sockets.send(String(id), line));
+  handle('socket:close', (id) => sockets.close(String(id)));
   handle('ws:close', (id, code, reason) => websockets.close(String(id), code, reason));
   handle('bio:available', () => biometricsAvailable());
   handle('bio:prompt', (reason) => promptBiometrics(reason));
@@ -303,5 +313,6 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   websockets.closeAll();
+  sockets.closeAll();
   if (tor) tor.stop();
 });

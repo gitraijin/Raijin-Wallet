@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 
 private const val STATUS_EVENT = "onStatus"
 private const val WS_EVENT = "onWebSocket"
+private const val SOCKET_EVENT = "onSocket"
 
 class RaijinTorModule : Module() {
   private val context: Context
@@ -26,16 +27,18 @@ class RaijinTorModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("RaijinTor")
 
-    Events(STATUS_EVENT, WS_EVENT)
+    Events(STATUS_EVENT, WS_EVENT, SOCKET_EVENT)
 
     OnCreate {
       TorController.listener = { status -> sendEvent(STATUS_EVENT, statusMap(status)) }
       NativeWebSockets.emit = { event -> sendEvent(WS_EVENT, event) }
+      NativeSockets.emit = { event -> sendEvent(SOCKET_EVENT, event) }
     }
 
     OnDestroy {
       TorController.listener = null
       NativeWebSockets.emit = null
+      NativeSockets.emit = null
     }
 
     Function("getStatus") {
@@ -73,6 +76,34 @@ class RaijinTorModule : Module() {
 
     Function("wsClose") { id: String, code: Int, reason: String? ->
       NativeWebSockets.close(id, code, reason)
+    }
+
+    // Electrum: line-based TCP/TLS. Resolves with the server's TLS fingerprint ("" without TLS).
+    AsyncFunction("socketOpen") Coroutine { id: String, host: String, port: Int, tls: Boolean, viaTor: Boolean, pin: String? ->
+      val socksPort = if (viaTor) {
+        try {
+          TorController.start(context)
+        } catch (e: Exception) {
+          throw CodedException("ERR_TOR_START", e.message ?: "Tor failed to start", e)
+        }
+      } else {
+        0
+      }
+      withContext(Dispatchers.IO) {
+        try {
+          NativeSockets.open(id, host, port, tls, socksPort, pin, if (viaTor) 60_000 else 15_000)
+        } catch (e: Exception) {
+          throw CodedException("ERR_SOCKET", e.message ?: e.javaClass.simpleName, e)
+        }
+      }
+    }
+
+    Function("socketSend") { id: String, line: String ->
+      NativeSockets.send(id, line)
+    }
+
+    Function("socketClose") { id: String ->
+      NativeSockets.close(id)
     }
 
     AsyncFunction("request") Coroutine { request: HttpRequest ->

@@ -24,6 +24,9 @@ export type NativeHttpRequest = {
 
 export type NativeHttpResponse = { status: number; body: string };
 
+/** Electrum sockets: one line of JSON per "data" event. */
+export type NativeSocketEvent = { id: string; type: 'data' | 'close'; data?: string; reason?: string };
+
 export type NativeWebSocketEvent = {
   id: string;
   type: 'open' | 'message' | 'close' | 'error';
@@ -35,6 +38,7 @@ export type NativeWebSocketEvent = {
 type Events = {
   onStatus: (status: TorStatus) => void;
   onWebSocket: (event: NativeWebSocketEvent) => void;
+  onSocket: (event: NativeSocketEvent) => void;
 };
 
 declare class RaijinTorModule extends NativeModule<Events> {
@@ -45,6 +49,10 @@ declare class RaijinTorModule extends NativeModule<Events> {
   wsOpen(id: string, url: string, viaTor: boolean, trustAll: boolean): Promise<void>;
   wsSend(id: string, text: string): boolean;
   wsClose(id: string, code: number, reason: string | null): void;
+  /** TCP/TLS for Electrum. `pin`: accepted certificate fingerprint, "*" for any, null for system trust only. */
+  socketOpen(id: string, host: string, port: number, tls: boolean, viaTor: boolean, pin: string | null): Promise<string>;
+  socketSend(id: string, line: string): boolean;
+  socketClose(id: string): void;
 }
 
 /** Null where the native module is missing (iOS, web, Expo Go). */

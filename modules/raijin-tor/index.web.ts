@@ -24,6 +24,9 @@ export type NativeHttpRequest = {
 
 export type NativeHttpResponse = { status: number; body: string };
 
+/** Electrum sockets: one line of JSON per "data" event. */
+export type NativeSocketEvent = { id: string; type: 'data' | 'close'; data?: string; reason?: string };
+
 export type NativeWebSocketEvent = {
   id: string;
   type: 'open' | 'message' | 'close' | 'error';
@@ -34,6 +37,7 @@ export type NativeWebSocketEvent = {
 
 type Listener = (status: TorStatus) => void;
 type WsListener = (event: NativeWebSocketEvent) => void;
+type SocketListener = (event: NativeSocketEvent) => void;
 
 function createDesktopTor() {
   if (!desktop) return null;
@@ -41,7 +45,9 @@ function createDesktopTor() {
   let status: TorStatus = { state: 'off', progress: 0, socksPort: 0, error: null };
   const listeners = new Set<Listener>();
   const wsListeners = new Set<WsListener>();
+  const socketListeners = new Set<SocketListener>();
   bridge.onWebSocket((event) => wsListeners.forEach((l) => l(event)));
+  bridge.onSocket((event) => socketListeners.forEach((l) => l(event)));
   const emit = (next: TorStatus) => {
     status = next;
     listeners.forEach((l) => l(next));
@@ -61,13 +67,20 @@ function createDesktopTor() {
       return true;
     },
     wsClose: (id: string, code: number, reason: string | null) => void bridge.wsClose(id, code, reason),
-    addListener: ((event: 'onStatus' | 'onWebSocket', listener: Listener | WsListener) => {
-      const set = (event === 'onStatus' ? listeners : wsListeners) as Set<Listener | WsListener>;
+    socketOpen: (id: string, host: string, port: number, tls: boolean, viaTor: boolean, pin: string | null) => bridge.socketOpen(id, host, port, tls, viaTor, pin),
+    socketSend: (id: string, line: string) => {
+      void bridge.socketSend(id, line);
+      return true;
+    },
+    socketClose: (id: string) => void bridge.socketClose(id),
+    addListener: ((event: 'onStatus' | 'onWebSocket' | 'onSocket', listener: Listener | WsListener | SocketListener) => {
+      const set = (event === 'onStatus' ? listeners : event === 'onSocket' ? socketListeners : wsListeners) as Set<Listener | WsListener | SocketListener>;
       set.add(listener);
       return { remove: () => set.delete(listener) };
     }) as {
       (event: 'onStatus', listener: Listener): { remove: () => void };
       (event: 'onWebSocket', listener: WsListener): { remove: () => void };
+      (event: 'onSocket', listener: SocketListener): { remove: () => void };
     },
   };
 }

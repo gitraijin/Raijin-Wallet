@@ -45,6 +45,14 @@ contextBridge.exposeInMainWorld('raijinDesktop', {
   wsOpen: (id, url, viaTor, trustAll) => call('ws:open', id, url, viaTor, trustAll),
   wsSend: (id, text) => call('ws:send', id, text),
   wsClose: (id, code, reason) => call('ws:close', id, code, reason),
+  socketOpen: (id, host, port, useTls, viaTor, pin) => call('socket:open', id, host, port, useTls, viaTor, pin),
+  socketSend: (id, line) => call('socket:send', id, line),
+  socketClose: (id) => call('socket:close', id),
+  onSocket: (listener) => {
+    const handler = (_event, data) => listener(data);
+    ipcRenderer.on('socket:event', handler);
+    return () => ipcRenderer.removeListener('socket:event', handler);
+  },
   onWebSocket: (listener) => {
     const handler = (_event, data) => listener(data);
     ipcRenderer.on('ws:event', handler);

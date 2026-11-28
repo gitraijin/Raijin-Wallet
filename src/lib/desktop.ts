@@ -54,6 +54,11 @@ export type DesktopBridge = {
   onWebSocket(
     listener: (event: { id: string; type: 'open' | 'message' | 'close' | 'error'; data?: string; code?: number; reason?: string }) => void,
   ): () => void;
+  /** Line-based TCP/TLS (Electrum servers). Resolves with the TLS fingerprint. */
+  socketOpen(id: string, host: string, port: number, tls: boolean, viaTor: boolean, pin: string | null): Promise<string>;
+  socketSend(id: string, line: string): Promise<boolean>;
+  socketClose(id: string): Promise<void>;
+  onSocket(listener: (event: { id: string; type: 'data' | 'close'; data?: string; reason?: string }) => void): () => void;
 };
 
 export const desktop: DesktopBridge | null =

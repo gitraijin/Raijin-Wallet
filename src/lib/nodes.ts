@@ -87,6 +87,13 @@ export async function removeNode(id: string): Promise<NodeIndex> {
   const activeId = current.activeId === id ? (nodes[0]?.id ?? null) : current.activeId;
   const index = { nodes, activeId };
   await saveNodeIndex(index);
+  // An on-chain wallet with its own words takes them along (they exist nowhere else on the device).
+  const uri = await SecureStore.getItemAsync(uriKey(id), STORE_OPTIONS);
+  if (uri?.toLowerCase().startsWith('raijin-onchain://own/')) {
+    const { forgetOwn, parseOnchainUri } = await import('@/onchain/keys');
+    const keys = parseOnchainUri(uri);
+    if (keys.kind === 'own') await forgetOwn(keys.id);
+  }
   await SecureStore.deleteItemAsync(uriKey(id), STORE_OPTIONS);
   return index;
 }

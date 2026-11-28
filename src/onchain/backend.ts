@@ -9,12 +9,15 @@
 import { parsePaymentInput } from '@/lib/bitcoin';
 import type { FeeEstimate, OnchainSendRequest, SendQuote, Utxo, WalletBackend, WalletPayment, WalletSnapshot } from '@/lightning/types';
 
+import { loadSeed, parseOnchainUri, stateKey } from './keys';
 import { OnchainWallet } from './wallet';
 
 export const ONCHAIN_URI = 'raijin-onchain://bip84';
 
-export async function createOnchainBackend(): Promise<WalletBackend> {
-  const wallet = await OnchainWallet.open();
+export async function createOnchainBackend(uri: string): Promise<WalletBackend> {
+  const keys = parseOnchainUri(uri);
+  const { seed, account } = await loadSeed(keys);
+  const wallet = await OnchainWallet.open(seed, account, stateKey(keys));
   // Verifies that a server is reachable (adding the wallet fails otherwise).
   await wallet.sync();
   let lastSync = new Date();
@@ -59,7 +62,12 @@ export async function createOnchainBackend(): Promise<WalletBackend> {
   };
 
   return {
-    info: { label: 'bitcoin // on-chain', network: 'mainnet', sendTargets: ['bitcoin'], onchainReceive: true },
+    info: {
+      label: keys.kind === 'own' ? 'bitcoin // own words' : `bitcoin // account ${keys.account + 1}`,
+      network: 'mainnet',
+      sendTargets: ['bitcoin'],
+      onchainReceive: true,
+    },
 
     async getSnapshot(): Promise<WalletSnapshot> {
       await sync();

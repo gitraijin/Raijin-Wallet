@@ -11,21 +11,19 @@ import { HDKey } from '@scure/bip32';
 import * as btc from '@scure/btc-signer';
 import { hex } from '@scure/base';
 
-import { seedBytes } from '@/cashu/seed';
 import * as SecureStore from '@/lib/secure-store';
 
 import { connectAny, type ElectrumClient, scriptHash } from './electrum';
 
 const GAP = 20;
 let NET = btc.NETWORK;
-let PATH = "m/84'/0'/0'";
+let COIN = 0;
 
 /** Tests only: regtest addresses (bcrt1…) and coin type 1. Never called by the app. */
 export function useRegtestForTests() {
   NET = { ...btc.TEST_NETWORK, bech32: 'bcrt' };
-  PATH = "m/84'/1'/0'";
+  COIN = 1;
 }
-const STATE_KEY = 'raijin.onchain.state.v1';
 const DUST = 546;
 
 type Chain = 0 | 1; // 0 receive, 1 change
@@ -57,15 +55,19 @@ export class OnchainWallet {
   tip = 0;
   client: ElectrumClient | null = null;
 
-  private constructor(account: HDKey) {
+  private stateKey: string;
+
+  private constructor(account: HDKey, stateKey: string) {
     this.account = account;
+    this.stateKey = stateKey;
   }
 
-  static async open(): Promise<OnchainWallet> {
-    const root = HDKey.fromMasterSeed(await seedBytes());
-    const wallet = new OnchainWallet(root.derive(PATH));
+  /** BIP84 account `account` (m/84'/0'/account') of a BIP39 seed. */
+  static async open(seed: Uint8Array, account: number, stateKey: string): Promise<OnchainWallet> {
+    const root = HDKey.fromMasterSeed(seed);
+    const wallet = new OnchainWallet(root.derive(`m/84'/${COIN}'/${account}'`), stateKey);
     try {
-      const raw = await SecureStore.getItemAsync(STATE_KEY);
+      const raw = await SecureStore.getItemAsync(stateKey);
       if (raw) wallet.used = (JSON.parse(raw) as StoredState).used;
     } catch {
       // first start
@@ -100,7 +102,7 @@ export class OnchainWallet {
   }
 
   private async saveState() {
-    await SecureStore.setItemAsync(STATE_KEY, JSON.stringify({ used: this.used } satisfies StoredState));
+    await SecureStore.setItemAsync(this.stateKey, JSON.stringify({ used: this.used } satisfies StoredState));
   }
 
   /** Fetches histories of all addresses up to the gap limit on both chains. */

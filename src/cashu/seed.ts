@@ -58,8 +58,9 @@ export async function replaceMnemonic(words: string): Promise<void> {
   // Counters belong to a seed; a restore moves them forward again.
   counters.clear();
   await SecureStore.deleteItemAsync(COUNTERS_KEY, OPTIONS);
-  // The on-chain wallet's address counts belong to the old words too.
+  // On-chain wallets on the shared words: their address counts belong to the old words.
   await SecureStore.deleteItemAsync('raijin.onchain.state.v1');
+  for (let account = 1; account < 20; account++) await SecureStore.deleteItemAsync(`raijin.onchain.state.shared${account}`);
   cachedSeed = null;
 }
 

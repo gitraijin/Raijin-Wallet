@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View, StyleSheet } from 'react-native';
 
 import { Button, ErrorText, Header, Input, Label, Mono, Panel, Screen } from '@/components/ui';
 import { errorMessage } from '@/lib/format';
 import { goHome } from '@/lib/navigation';
+import { loadNodeUri } from '@/lib/nodes';
 import type { ConnectionKind } from '@/lightning/connection';
 import { useT } from '@/preferences/PreferencesContext';
 import { useSecurity } from '@/security/SecurityContext';
@@ -31,9 +32,7 @@ export default function Nodes() {
         <NodeCard key={node.id} node={node} active={node.id === activeNodeId} />
       ))}
       <Button label={t('nodes.add')} onPress={() => router.push('/connect')} />
-      {!nodes.some((n) => n.kind === 'onchain') ? (
-        <Button label={t('onboarding.createOnchain')} variant="secondary" onPress={() => router.push('/onchain-create')} />
-      ) : null}
+      <Button label={t('onboarding.createOnchain')} variant="secondary" onPress={() => router.push('/onchain-create')} />
     </Screen>
   );
 }
@@ -47,6 +46,12 @@ function NodeCard({ node, active }: { node: NodeEntry; active: boolean }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(node.name);
   const [error, setError] = useState<string | null>(null);
+  // On-chain wallets: which words they use (own words are shown and deleted with the wallet).
+  const [ownWords, setOwnWords] = useState(false);
+  useEffect(() => {
+    if (node.kind !== 'onchain') return;
+    loadNodeUri(node.id).then((uri) => setOwnWords(!!uri?.toLowerCase().startsWith('raijin-onchain://own/')));
+  }, [node.id, node.kind]);
 
   const select = () => {
     if (active && status === 'ready') {
@@ -70,7 +75,7 @@ function NodeCard({ node, active }: { node: NodeEntry; active: boolean }) {
   const confirmRemove = async () => {
     const confirmed = await confirmAction(
       t('nodes.removeTitle', { name: node.name }),
-      t('nodes.removeBody'),
+      ownWords ? `${t('nodes.removeBody')}\n\n${t('onchain.removeOwnWarning')}` : t('nodes.removeBody'),
       t('nodes.remove'),
       t('common.cancel'),
     );
@@ -125,6 +130,13 @@ function NodeCard({ node, active }: { node: NodeEntry; active: boolean }) {
             </Mono>
             {!active ? <Mono style={styles.hint}>{t('nodes.tapToUse')}</Mono> : null}
           </Pressable>
+          {node.kind === 'onchain' ? (
+            <Button
+              label={t('onchain.showWords')}
+              variant="ghost"
+              onPress={() => router.push(ownWords ? { pathname: '/onchain-words', params: { node: node.id } } : '/cashu-seed')}
+            />
+          ) : null}
           <View style={styles.row}>
             <View style={styles.flex}>
               <Button label={t('nodes.rename')} variant="ghost" onPress={() => setEditing(true)} />

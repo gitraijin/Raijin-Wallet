@@ -16,7 +16,7 @@ export async function openBackend(uri: string): Promise<WalletBackend> {
     case 'lnd':
       return (await import('./lnd')).createLndBackend(uri);
     case 'onchain':
-      return (await import('../onchain/backend')).createOnchainBackend();
+      return (await import('../onchain/backend')).createOnchainBackend(uri);
     default:
       throw new Error('Unsupported connection. Use lndconnect://, nostr+walletconnect:// or lndhub://');
   }

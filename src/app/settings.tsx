@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Linking, View, StyleSheet } from 'react-native';
 
 import { AppIconPicker } from '@/components/AppIconPicker';
+import { ElectrumPanel } from '@/components/ElectrumPanel';
 import { ProgressBar } from '@/motion/ProgressBar';
 import { desktop } from '@/lib/desktop';
 import { backgroundChecksAvailable, ensureNotificationPermission } from '@/notify';
@@ -121,6 +122,8 @@ export default function Settings() {
       </Panel>
 
       <TorPanel />
+
+      <ElectrumPanel />
 
       <Panel label={t('settings.theme')} collapsible defaultOpen={false}>
         <ThemePicker />

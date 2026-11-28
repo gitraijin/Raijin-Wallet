@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { useCashu } from '@/cashu/CashuContext';
+import { useWallet } from '@/wallet/WalletContext';
 import { isValidMnemonic, loadMnemonic, markBackedUp, replaceMnemonic, seedBytes } from '@/cashu/seed';
 import { hostOf, inspectMint, resetWallets, restoreFromMint, type RestoreResult } from '@/cashu/wallet';
 import { Button, ErrorText, Header, Input, Label, Mono, Panel, Screen, Segmented } from '@/components/ui';
@@ -90,6 +91,7 @@ function Restore() {
   const amount = useAmount();
   const security = useSecurity();
   const { mints, addMint, reload } = useCashu();
+  const { activeNode, retry } = useWallet();
   const [words, setWords] = useState('');
   const [extraMint, setExtraMint] = useState('');
   const [progress, setProgress] = useState<number | null>(null);
@@ -108,6 +110,8 @@ function Restore() {
       if (!current || current !== words.trim().toLowerCase().split(/\s+/).join(' ')) {
         await replaceMnemonic(words);
         resetWallets();
+        // The on-chain wallet uses the same words: reopen it with the new keys.
+        if (activeNode?.kind === 'onchain') void retry();
       }
       const targets = [...mints];
       if (extraMint.trim()) targets.push(await addMint(await inspectMint(extraMint)));

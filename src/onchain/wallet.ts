@@ -290,6 +290,8 @@ export class OnchainWallet {
    * `outpoints` restricts the coins (coin control).
    */
   build(opts: { to: string; amount: number | null; feeRate: number; outpoints?: string[] }) {
+    // Bech32 may come upper-case from a QR code; outputs compare lower-case.
+    if (/^(bc|tb|bcrt)1/i.test(opts.to)) opts = { ...opts, to: opts.to.toLowerCase() };
     btc.Address(NET).decode(opts.to);
     let coins = this.utxos();
     if (opts.outpoints?.length) coins = coins.filter((u) => opts.outpoints!.includes(`${u.txid}:${u.vout}`));

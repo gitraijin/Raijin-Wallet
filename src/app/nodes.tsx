@@ -16,6 +16,7 @@ const KIND_LABEL: Record<ConnectionKind, string> = {
   lnd: 'LND REST',
   nwc: 'NWC',
   lndhub: 'LNDHUB',
+  onchain: 'ON-CHAIN',
 };
 
 /** Saved nodes: switch, rename, remove, add. */
@@ -30,6 +31,9 @@ export default function Nodes() {
         <NodeCard key={node.id} node={node} active={node.id === activeNodeId} />
       ))}
       <Button label={t('nodes.add')} onPress={() => router.push('/connect')} />
+      {!nodes.some((n) => n.kind === 'onchain') ? (
+        <Button label={t('onboarding.createOnchain')} variant="secondary" onPress={() => router.push('/onchain-create')} />
+      ) : null}
     </Screen>
   );
 }

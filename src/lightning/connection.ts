@@ -3,7 +3,7 @@
  * no heavy imports, so screens can use it for validation.
  */
 
-export type ConnectionKind = 'nwc' | 'lndhub' | 'lnd';
+export type ConnectionKind = 'nwc' | 'lndhub' | 'lnd' | 'onchain';
 
 export type LndhubConnection = { login: string; password: string; baseUrl: string };
 export type LndConnection = {
@@ -18,6 +18,8 @@ export function detectConnection(value: string): ConnectionKind | null {
   if (lower.startsWith('nostr+walletconnect://') || lower.startsWith('nostrwalletconnect://')) return 'nwc';
   if (lower.startsWith('lndhub://')) return 'lndhub';
   if (lower.startsWith('lndconnect://')) return 'lnd';
+  // The app's own on-chain wallet (keys from the app seed, nothing secret in the string).
+  if (lower.startsWith('raijin-onchain://')) return 'onchain';
   return null;
 }
 

@@ -17,9 +17,11 @@ export default function Receive() {
   const t = useT();
   const [mode, setMode] = useState<Mode>('lightning');
 
-  const options: { value: Mode; label: string }[] = [{ value: 'lightning', label: 'ϟ Lightning' }];
+  const options: { value: Mode; label: string }[] = [];
+  // The on-chain wallet has no Lightning.
+  if (backend?.info.sendTargets.includes('lightning') ?? true) options.push({ value: 'lightning', label: 'ϟ Lightning' });
   if (backend?.info.onchainReceive) options.push({ value: 'onchain', label: '₿ On-chain' });
-  const active = options.some((o) => o.value === mode) ? mode : 'lightning';
+  const active = options.some((o) => o.value === mode) ? mode : (options[0]?.value ?? 'lightning');
 
   return (
     <Screen scroll>

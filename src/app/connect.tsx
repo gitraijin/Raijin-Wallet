@@ -18,7 +18,7 @@ import { useWallet } from '@/wallet/WalletContext';
 import { scanInto } from '@/lib/scan-result';
 
 const KINDS: {
-  value: ConnectionKind;
+  value: Exclude<ConnectionKind, 'onchain'>;
   label: string;
   placeholder: string;
 }[] = [

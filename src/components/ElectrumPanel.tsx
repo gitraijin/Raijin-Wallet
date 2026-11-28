@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 
 import { Button, ErrorText, Input, Label, Mono, Panel } from '@/components/ui';
 import { errorMessage } from '@/lib/format';
-import { DEFAULT_SERVERS, getCustomServer, parseServer, serverLabel, setCustomServer } from '@/onchain/electrum';
+import { DEFAULT_SERVERS, getCustomServer, getOnlyCustom, parseServer, serverLabel, setCustomServer, setOnlyCustom } from '@/onchain/electrum';
 import { useT } from '@/preferences/PreferencesContext';
 import { makeStyles } from '@/theme';
 import { useWallet } from '@/wallet/WalletContext';
@@ -16,8 +16,10 @@ export function ElectrumPanel() {
   const [value, setValue] = useState('');
   const [saved, setSaved] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [only, setOnly] = useState(false);
 
   useEffect(() => {
+    getOnlyCustom().then(setOnly);
     getCustomServer().then((s) => {
       const v = s ? serverLabel(s) : '';
       setValue(v);
@@ -32,7 +34,11 @@ export function ElectrumPanel() {
     try {
       await setCustomServer(next);
       setSaved(next ?? '');
-      if (!next) setValue('');
+      if (!next) {
+        setValue('');
+        await setOnlyCustom(false);
+        setOnly(false);
+      }
       // Reconnect the on-chain wallet to the new server.
       if (activeNode?.kind === 'onchain') void retry();
     } catch (e) {
@@ -49,6 +55,18 @@ export function ElectrumPanel() {
       <ErrorText>{error}</ErrorText>
       {value.trim() !== saved ? <Button label={t('common.save')} variant="secondary" disabled={!!value.trim() && !parseServer(value)} onPress={() => save(value.trim() || null)} /> : null}
       {saved ? <Button label={t('electrum.useDefault')} variant="ghost" onPress={() => save(null)} /> : null}
+      {saved ? (
+        <Button
+          label={only ? t('electrum.onlyOff') : t('electrum.onlyOn')}
+          variant="ghost"
+          onPress={async () => {
+            await setOnlyCustom(!only);
+            setOnly(!only);
+            if (activeNode?.kind === 'onchain') void retry();
+          }}
+        />
+      ) : null}
+      {only ? <Mono style={styles.hint}>{t('privacy.onlyOn')}</Mono> : null}
       <Mono style={styles.hint}>{`${t('electrum.fallbacks')}\n${DEFAULT_SERVERS.map(serverLabel).join('\n')}`}</Mono>
     </Panel>
   );

@@ -46,6 +46,17 @@ export function configureForTests(opts: { genesis: string; servers: ElectrumServ
 }
 const PINS_KEY = 'raijin.onchain.electrumPins.v1';
 const SERVER_KEY = 'raijin.onchain.electrumServer.v1';
+const ONLY_KEY = 'raijin.onchain.electrumOnly.v1';
+
+/** "Only my server": never fall back to public servers (privacy). */
+export async function getOnlyCustom(): Promise<boolean> {
+  return (await SecureStore.getItemAsync(ONLY_KEY)) === '1';
+}
+
+export async function setOnlyCustom(on: boolean): Promise<void> {
+  if (on) await SecureStore.setItemAsync(ONLY_KEY, '1');
+  else await SecureStore.deleteItemAsync(ONLY_KEY);
+}
 
 export function serverLabel(s: ElectrumServer): string {
   return `${s.tls ? 'ssl' : 'tcp'}://${s.host}:${s.port}`;
@@ -206,6 +217,11 @@ export class ElectrumClient {
 /** Connects to the first server that works: custom, then the defaults. */
 export async function connectAny(): Promise<ElectrumClient> {
   const custom = await getCustomServer();
+  if (await getOnlyCustom()) {
+    // Privacy over availability: no silent fallback to someone else's server.
+    if (!custom) throw new Error('"Only my server" is on, but no server is set (Settings → Bitcoin server).');
+    return ElectrumClient.connect(custom);
+  }
   const list = custom ? [custom, ...servers.filter((s) => serverLabel(s) !== serverLabel(custom))] : servers;
   const errors: string[] = [];
   for (const server of list) {

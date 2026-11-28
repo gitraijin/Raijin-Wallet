@@ -638,6 +638,21 @@ export const en = {
   "onchain.wordsIntro": "> the recovery words of this bitcoin wallet (only for it, not for cashu).",
   "onchain.wordsWarning": "> write them on paper. whoever has them can take the coins of this wallet. never type them into a website.",
   "onchain.wordsPassphrase": "> this wallet also has a passphrase. it is not shown here: you need it too, keep it separately.",
+  "privacy.button": "Privacy settings first",
+  "privacy.title": "Privacy",
+  "privacy.intro": "> decide before anything is set up who raijin talks to. you can change all of it later in the settings.",
+  "privacy.tor": "tor for everything",
+  "privacy.torHint": "> nodes, electrum servers, lnurl and prices only over tor: nobody sees your ip address. slower.",
+  "privacy.server": "your electrum server",
+  "privacy.serverHint": "> e.g. fulcrum or electrs on your own node (raitaro, umbrel, start9). .onion works over tor.",
+  "privacy.only": "only my server",
+  "privacy.onlyOn": "> raijin never asks anyone else. if your server is down, the bitcoin wallet waits until it is back.",
+  "privacy.onlyOff": "> if your server is not reachable, raijin uses these (they then see your addresses):",
+  "privacy.onlyNeedsServer": "> enter your server first.",
+  "privacy.prices": "exchange rates",
+  "privacy.pricesHint": "> rates come from mempool.space and blockchain.info. off: amounts only in bitcoin, no request.",
+  "electrum.onlyOn": "Use only my server",
+  "electrum.onlyOff": "Allow fallback servers",
 } as const;
 
 export type TKey = keyof typeof en;

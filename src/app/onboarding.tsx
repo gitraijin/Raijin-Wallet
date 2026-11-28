@@ -24,6 +24,7 @@ export default function Onboarding() {
       <View style={styles.actions}>
         <Button label={t('onboarding.createOnchain')} onPress={() => router.push('/onchain-create')} />
         <Button label={t('onboarding.connect')} variant="secondary" onPress={() => router.push('/connect')} />
+        <Button label={t('privacy.button')} variant="ghost" onPress={() => router.push('/privacy')} />
         <Label style={styles.network}>{t('onboarding.footer')}</Label>
       </View>
     </Screen>

@@ -169,6 +169,7 @@ export default function OnchainCreate() {
       <Label>{t('onchain.name')}</Label>
       <Input value={name} onChangeText={setName} placeholder={defaultName} maxLength={40} />
       <Mono style={styles.text}>{t('onchain.serverHint')}</Mono>
+      <Button label={t('privacy.button')} variant="ghost" onPress={() => router.push('/privacy')} />
       <ErrorText>{error}</ErrorText>
       <Button label={t('onchain.create')} onPress={create} loading={busy} disabled={!ready} />
     </Screen>

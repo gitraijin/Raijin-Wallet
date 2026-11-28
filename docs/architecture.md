@@ -12,7 +12,10 @@ Raijin holds **no keys of its own** for Lightning. Every "wallet" in the app is 
 
 A connection string grants spending rights and is as sensitive as a seed. It is stored only in the device's secure storage (`src/lib/secure-store.ts`: `expo-secure-store` on phones, the operating system keychain on desktop).
 
-The one exception is **Cashu ecash**: the app keeps its own seed (12 words) and proofs, because ecash lives on the device.
+Two exceptions keep keys on the device:
+
+- **Cashu ecash**: the app's seed (12 words) and proofs, because ecash lives on the device.
+- **On-chain Bitcoin wallets** (`raijin-onchain://…`, `src/onchain/`): BIP84 accounts from the same 12 words (`shared/<n>`), or a wallet's own 12/24 words with an optional BIP39 passphrase (`own/<id>`, only for Bitcoin). Chain data comes from Electrum servers over TCP/TLS (native module / desktop main process, Tor when enabled); every server must serve Bitcoin mainnet (genesis check), self-signed certificates are pinned on first use, and "only my server" disables public fallbacks. Transactions are built and signed on the device (`@scure/btc-signer`).
 
 ## Layers
 

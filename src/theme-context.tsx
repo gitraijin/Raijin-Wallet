@@ -47,7 +47,8 @@ function defaultSettings(): ThemeSettings {
     accent: null,
     darkFrom: 20,
     darkUntil: 7,
-    uiStyle: 'terminal',
+    // Fujin style (round and calm) by default since 0.2.0; Terminal stays one tap away.
+    uiStyle: 'fujin',
   };
 }
 
@@ -82,7 +83,7 @@ function sanitize(raw: unknown): ThemeSettings {
     accent: typeof v.accent === 'string' && /^#[0-9a-f]{6}$/i.test(v.accent) ? v.accent : null,
     darkFrom: isHour(v.darkFrom) ? v.darkFrom : DEFAULT_SETTINGS.darkFrom,
     darkUntil: isHour(v.darkUntil) ? v.darkUntil : DEFAULT_SETTINGS.darkUntil,
-    uiStyle: v.uiStyle === 'fujin' ? 'fujin' : 'terminal',
+    uiStyle: v.uiStyle === 'terminal' || v.uiStyle === 'fujin' ? v.uiStyle : DEFAULT_SETTINGS.uiStyle,
   };
 }
 

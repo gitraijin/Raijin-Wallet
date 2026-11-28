@@ -10,6 +10,7 @@ Download: [raijinhub.com/download](https://raijinhub.com/download/) (Android, Wi
 
 ## Features
 
+- On-chain Bitcoin wallet right at first start, no node needed: BIP84 (bc1q…), several accounts, keys from the app's 12 words (shared with Cashu) or own 12/24 words with an optional passphrase; Electrum servers (own server first, optionally only your own, Tor)
 - Multiple nodes / wallets, switchable at any time:
   - `lndconnect://host:port?cert=...&macaroon=...`: LND via REST. Self-signed certificates work when the string carries the `cert`; `.onion` hosts connect over Tor.
   - `nostr+walletconnect://...`: Nostr Wallet Connect (Alby Hub, LNbits, coinos, own node)
@@ -23,7 +24,7 @@ Download: [raijinhub.com/download](https://raijinhub.com/download/) (Android, Wi
 - App lock with 6-digit PIN (shuffled keypad), optional biometrics, payment PIN limit and a duress PIN that opens a decoy wallet
 - Encrypted backup and restore
 - Amounts in sats or BTC with fiat value in many currencies, balance hiding
-- Two UI styles (terminal and Fujin) with many themes
+- Two UI styles (Fujin, the default, and terminal) with many themes
 - Android home screen widget and payment links
 - Desktop app for Windows, macOS and Linux
 - Nine languages: English, German, Spanish, French, Italian, Portuguese, Japanese, Chinese, Russian
